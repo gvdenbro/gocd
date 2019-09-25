@@ -19,20 +19,30 @@ import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Revision;
+import com.thoughtworks.go.util.json.JsonHelper;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
 
 public class GitPoller implements MaterialPoller<GitMaterial> {
 
     @Override
     public List<Modification> latestModification(GitMaterial material, File baseDir, SubprocessExecutionContext execCtx) {
-        return toggleShallowCloneFeature(material, execCtx).latestModification(baseDir, execCtx);
+        List<Modification> mods = toggleShallowCloneFeature(material, execCtx).latestModification(baseDir, execCtx);
+        for (Modification mod : mods) {
+            updateAdditionalData(material, mod, baseDir, execCtx);
+        }
+        return mods;
     }
 
     @Override
     public List<Modification> modificationsSince(GitMaterial material, File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
-        return toggleShallowCloneFeature(material, execCtx).modificationsSince(baseDir, revision, execCtx);
+        List<Modification> mods = toggleShallowCloneFeature(material, execCtx).modificationsSince(baseDir, revision, execCtx);
+        for (Modification mod : mods) {
+            updateAdditionalData(material, mod, baseDir, execCtx);
+        }
+        return mods;
     }
 
     @Override
@@ -42,5 +52,10 @@ public class GitPoller implements MaterialPoller<GitMaterial> {
 
     private GitMaterial toggleShallowCloneFeature(GitMaterial material, SubprocessExecutionContext execCtx) {
         return material.withShallowClone(execCtx.isGitShallowClone());
+    }
+
+    private void updateAdditionalData(GitMaterial material, Modification mod, File baseDir, SubprocessExecutionContext execCtx) {
+        String describeResult = toggleShallowCloneFeature(material, execCtx).describe(baseDir, mod, execCtx);
+        mod.setAdditionalData(JsonHelper.toJsonString(Collections.singletonMap("describe", describeResult)));
     }
 }

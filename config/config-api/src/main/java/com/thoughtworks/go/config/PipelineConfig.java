@@ -302,7 +302,13 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
                 return false;
             }
 
-            if (!materialConfigs.materialNames().contains(new CaseInsensitiveString(materialName))) {
+            CaseInsensitiveString caseInsensitiveMaterialName = new CaseInsensitiveString(materialName);
+
+            if (caseInsensitiveMaterialName.endsWith("_description")) {
+                caseInsensitiveMaterialName = new CaseInsensitiveString(materialName.substring(0, materialName.length() - "_description".length()));
+            }
+
+            if (!materialConfigs.materialNames().contains(caseInsensitiveMaterialName)) {
                 addError("labelTemplate", format("You have defined a label template in pipeline '%s' that refers to a material called '%s', but no material with this name is defined.", name(), materialName));
                 return false;
             }

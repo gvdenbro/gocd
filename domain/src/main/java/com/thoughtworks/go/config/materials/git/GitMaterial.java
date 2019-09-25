@@ -450,4 +450,12 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
     public String branchWithDefault() {
         return isBlank(branch) ? GitMaterialConfig.DEFAULT_BRANCH : branch;
     }
+
+    public String describe(File baseDir, Modification modification, SubprocessExecutionContext execCtx) {
+        GitCommand gitCommand = getGit(baseDir, DEFAULT_SHALLOW_CLONE_DEPTH, execCtx);
+        if (!execCtx.isGitShallowClone()) {
+            fullyUnshallow(gitCommand, inMemoryConsumer());
+        }
+        return gitCommand.describe(modification);
+    }
 }

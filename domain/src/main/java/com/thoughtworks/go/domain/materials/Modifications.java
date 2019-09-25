@@ -19,9 +19,11 @@ import com.thoughtworks.go.config.materials.IgnoredFiles;
 import com.thoughtworks.go.config.materials.PackageMaterial;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
+import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
+import com.thoughtworks.go.domain.materials.git.GitRevision;
 import com.thoughtworks.go.domain.materials.packagematerial.PackageMaterialRevision;
 import com.thoughtworks.go.domain.materials.scm.PluggableSCMMaterialRevision;
 import com.thoughtworks.go.domain.materials.svn.SubversionRevision;
@@ -97,6 +99,16 @@ public class Modifications extends BaseCollection<Modification> {
         if (material instanceof SvnMaterial) {
             String revision = Modification.latestRevision(this).getRevision();
             return new SubversionRevision(revision);
+        }
+        if (material instanceof GitMaterial) {
+            if (this.isEmpty()) {
+                throw new RuntimeException("Cannot find latest revision.");
+            }
+            Modification latestModification = this.get(0);
+            String revision = latestModification.getRevision();
+            HashMap<String, String> latestAdditionalData = latestModification.getAdditionalDataMap();
+            String latestDescription = latestAdditionalData.get("describe");
+            return new GitRevision(revision, latestDescription);
         }
         if (material instanceof DependencyMaterial) {
             Modification latestModification = this.get(0);

@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.*;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.str;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 
 // Understands multiple materials each with their own revision
@@ -263,7 +264,11 @@ public class MaterialRevisions implements Serializable, Iterable<MaterialRevisio
         for (MaterialRevision mr : revisions) {
             CaseInsensitiveString materialName = mr.getMaterial().getName();
             if (!CaseInsensitiveString.isBlank(materialName)) {
-                results.put(materialName, getRevisionValueOf(mr.getRevision()));
+                Revision revision = mr.getRevision();
+                results.put(materialName, getRevisionValueOf(revision));
+                revision.getRevisionDescription().ifPresent(description -> {
+                    results.putIfAbsent(new CaseInsensitiveString(str(materialName) + "_description"), description);
+                });
             }
         }
         return results;

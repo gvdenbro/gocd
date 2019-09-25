@@ -123,6 +123,16 @@ public class GitCommand extends SCMCommand {
         return mods;
     }
 
+    public String describe(Modification modification) {
+        CommandLine describeCommand = git().withArgs("describe", "--tags", "--long", "--always", modification.getRevision()).withWorkingDir(workingDir);
+        ConsoleResult describeResult = runOrBomb(describeCommand);
+        List<String> output = describeResult.output();
+        if (output.isEmpty()) {
+            throw new RuntimeException(String.format("git describe returned no results for revision [%s]", modification.getRevision()));
+        }
+        return output.get(0);
+    }
+
     private void addModifiedFiles(Modification mod) {
         ConsoleResult consoleResult = diffTree(mod.getRevision());
         List<String> result = consoleResult.output();
