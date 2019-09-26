@@ -267,7 +267,7 @@ public class MaterialRevisions implements Serializable, Iterable<MaterialRevisio
                 Revision revision = mr.getRevision();
                 results.put(materialName, getRevisionValueOf(revision));
                 revision.getRevisionDescription().ifPresent(description -> {
-                    results.putIfAbsent(new CaseInsensitiveString(str(materialName) + "_description"), description);
+                    results.putIfAbsent(new CaseInsensitiveString("describe:" + str(materialName)), description);
                 });
             }
         }

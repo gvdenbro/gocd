@@ -304,8 +304,8 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
 
             CaseInsensitiveString caseInsensitiveMaterialName = new CaseInsensitiveString(materialName);
 
-            if (caseInsensitiveMaterialName.endsWith("_description")) {
-                caseInsensitiveMaterialName = new CaseInsensitiveString(materialName.substring(0, materialName.length() - "_description".length()));
+            if (caseInsensitiveMaterialName.startsWith("describe:")) {
+                caseInsensitiveMaterialName = new CaseInsensitiveString(materialName.substring("describe:".length()));
             }
 
             if (!materialConfigs.materialNames().contains(caseInsensitiveMaterialName)) {
